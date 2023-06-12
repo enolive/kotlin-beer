@@ -35,17 +35,29 @@ class ApiTest(
       response.shouldHaveJsonBody(expected)
     }
 
-    it("has GET /{id}") {
-      val id = ObjectId.get()
-      val existingBeer =
-        Beer(id = id, brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal())
-      coEvery { beerRepository.findById(id) } returns existingBeer
-      val expected = existingBeer.toJson()
+    describe("has GET /{id}") {
+      it("returns existing beer") {
+        val id = ObjectId.get()
+        val existingBeer =
+          Beer(id = id, brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal())
+        coEvery { beerRepository.findById(id) } returns existingBeer
+        val expected = existingBeer.toJson()
 
-      val response = webTestClient.get().uri("/beers/$id").exchange()
+        val response = webTestClient.get().uri("/beers/$id").exchange()
 
-      response.expectStatus().isOk
-      response.shouldHaveJsonBody(expected)
+        response.expectStatus().isOk
+        response.shouldHaveJsonBody(expected)
+      }
+
+      it("returns NO CONTENT when beer does not exist") {
+        val id = ObjectId.get()
+        val existingBeer = null
+        coEvery { beerRepository.findById(id) } returns existingBeer
+
+        val response = webTestClient.get().uri("/beers/$id").exchange()
+
+        response.expectStatus().isNoContent
+      }
     }
 
     it("has POST /") {

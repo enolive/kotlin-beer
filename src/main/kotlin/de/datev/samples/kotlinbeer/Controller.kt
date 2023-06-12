@@ -1,8 +1,10 @@
 package de.datev.samples.kotlinbeer
 
 import org.bson.types.ObjectId
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 
 @RequestMapping("/beers")
@@ -19,7 +21,7 @@ class Controller(
 
   @GetMapping("{id}")
   suspend fun getBeer(@PathVariable id: ObjectId) =
-    beerRepository.findById(id)
+    beerRepository.findById(id) ?: throw ResponseStatusException(HttpStatus.NO_CONTENT)
 
   private fun HasId.wrapInCreatedResponse() =
     ResponseEntity.created(URI("/beers/$id")).body(this)
