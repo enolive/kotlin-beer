@@ -4,8 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class KotlinBeerApplication
+class Application
 
 fun main(args: Array<String>) {
-	runApplication<KotlinBeerApplication>(*args)
+	runApplication<Application>(*args)
 }
