@@ -87,42 +87,67 @@ class ApiTest(
       response.expectHeader().location("/beers/${created.id}")
     }
 
-    it("has PUT /{id}") {
-      val id = ObjectId.get()
-      val existing = Beer(id = id, brand = "Nestle", name = "Wasser", strength = 5.toBigDecimal())
-      val toUpdate = Beer(id = id, brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal())
-      val updated = toUpdate.copy(id = id)
-      val expected = updated.toJson()
-      @Language("JSON") val toJson = """
+    describe("has PUT /{id}") {
+      it("updates existing beer") {
+        val id = ObjectId.get()
+        val existing = Beer(id = id, brand = "Nestle", name = "Wasser", strength = 5.toBigDecimal())
+        val toUpdate = Beer(id = id, brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal())
+        val updated = toUpdate.copy(id = id)
+        val expected = updated.toJson()
+        @Language("JSON") val toJson = """
         {
           "brand": "Nestle",
           "name": "Wasser",
           "strength": 0
         }
       """.trimIndent()
-      coEvery { beerRepository.findById(id) } returns existing
-      coEvery { beerRepository.save(toUpdate) } returns updated
+        coEvery { beerRepository.findById(id) } returns existing
+        coEvery { beerRepository.save(toUpdate) } returns updated
 
-      val response = webTestClient
-        .put()
-        .uri("/beers/$id")
-        .contentType(MediaType.APPLICATION_JSON)
-        .bodyValue(toJson)
-        .exchange()
+        val response = webTestClient
+          .put()
+          .uri("/beers/$id")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(toJson)
+          .exchange()
 
-      response.expectStatus().isOk
-      response.shouldHaveJsonBody(expected)
+        response.expectStatus().isOk
+        response.shouldHaveJsonBody(expected)
+      }
+
+      it("returns NO CONTENT when beer does not exist") {
+        val id = ObjectId.get()
+        val existing = null
+        @Language("JSON") val toJson = """
+        {
+          "brand": "Nestle",
+          "name": "Wasser",
+          "strength": 0
+        }
+      """.trimIndent()
+        coEvery { beerRepository.findById(id) } returns null
+
+        val response = webTestClient
+          .put()
+          .uri("/beers/$id")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(toJson)
+          .exchange()
+
+        response.expectStatus().isNoContent
+        coVerify(exactly = 0) { beerRepository.save(any()) }
+      }
     }
-  }
 
-  it("has DELETE /{id}") {
-    val id = ObjectId.get()
-    coJustRun { beerRepository.deleteById(any()) }
+    it("has DELETE /{id}") {
+      val id = ObjectId.get()
+      coJustRun { beerRepository.deleteById(any()) }
 
-    val response = webTestClient.delete().uri("/beers/$id").exchange()
+      val response = webTestClient.delete().uri("/beers/$id").exchange()
 
-    response.expectStatus().isNoContent
-    coVerify { beerRepository.deleteById(id) }
+      response.expectStatus().isNoContent
+      coVerify { beerRepository.deleteById(id) }
+    }
   }
 })
 

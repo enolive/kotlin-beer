@@ -30,7 +30,7 @@ class Controller(
 
   @PutMapping("{id}")
   suspend fun updateBeer(@PathVariable id: ObjectId, @RequestBody toUpdate: PartialBeer): Beer {
-    val found = beerRepository.findById(id)
+    beerRepository.findById(id) ?: throw ResponseStatusException(HttpStatus.NO_CONTENT)
     return toUpdate.complete().copy(id = id).let { beerRepository.save(it) }
   }
 
