@@ -21,7 +21,7 @@ class ApiTest(
   private val beerRepository: BeerRepository,
 ) : DescribeSpec({
   describe("API for /beers") {
-    describe("has GET /") {
+    it("has GET /") {
       val existingBeers = listOf(
         Beer(id = ObjectId.get(), brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal()),
         Beer(id = ObjectId.get(), brand = "Nestle", name = "Nesquik", strength = 0.toBigDecimal()),
@@ -35,7 +35,20 @@ class ApiTest(
       response.shouldHaveJsonBody(expected)
     }
 
-    describe("has POST /") {
+    it("has GET /{id}") {
+      val id = ObjectId.get()
+      val existingBeer =
+        Beer(id = id, brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal())
+      coEvery { beerRepository.findById(id) } returns existingBeer
+      val expected = existingBeer.toJson()
+
+      val response = webTestClient.get().uri("/beers/$id").exchange()
+
+      response.expectStatus().isOk
+      response.shouldHaveJsonBody(expected)
+    }
+
+    it("has POST /") {
       val toCreate = Beer(brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal())
       val created = toCreate.copy(id = ObjectId.get())
       val expected = created.toJson()
