@@ -7,7 +7,6 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.awaitBody
 
 @Component
 class Handler(
@@ -25,11 +24,11 @@ class Handler(
     beer
   }.foldServerResponse { it.responseOk() }
 
-  suspend fun createBeer(request: ServerRequest, rootUrl: String): ServerResponse {
-    val partialBeer = request.awaitBody<PartialBeer>()
+  suspend fun createBeer(request: ServerRequest, rootUrl: String): ServerResponse = either {
+    val partialBeer = request.bodyJson<PartialBeer>().bind()
     val createdBeer = partialBeer.complete().let { beerRepository.save(it) }
-    return createdBeer.responseCreated(rootUrl)
-  }
+    createdBeer
+  }.foldServerResponse { it.responseCreated(rootUrl) }
 
   suspend fun deleteBeer(request: ServerRequest): ServerResponse = either {
     val id = request.objectId().bind()
@@ -38,7 +37,7 @@ class Handler(
 
   suspend fun updateBeer(request: ServerRequest): ServerResponse = either {
     val id = request.objectId().bind()
-    val partialBeer = request.awaitBody<PartialBeer>()
+    val partialBeer = request.bodyJson<PartialBeer>().bind()
     beerRepository.tryFindById(id).bind()
     val updatedBeer = partialBeer.complete().copy(id = id).let { beerRepository.save(it) }
     updatedBeer
