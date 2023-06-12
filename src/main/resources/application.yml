@@ -2,4 +2,3 @@ spring:
   data:
     mongodb:
       database: "beersdb"
-
