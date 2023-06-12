@@ -4,7 +4,7 @@ GET http://localhost:8080/beers
 
 ### find single beer
 
-GET http://localhost:8080/beers/646d1247517b6dfed3f36c05
+GET http://localhost:8080/beers/64872cdbe3fc105cceba0851
 
 ### create a new beer
 
@@ -13,17 +13,17 @@ Content-Type: application/json
 
 {
   "brand": "Schanzenbräu",
-  "name": "Schanze Rot",
+  "nameee": "Schanze Rot",
   "strength": 4.9
 }
 
 ### delete a beer
 
-DELETE http://localhost:8080/beers/6446862e77e443bb9235cab5
+DELETE http://localhost:8080/beers/64872cdbe3fc105cceba0851
 
 ### update a beer
 
-PUT http://localhost:8080/beers/6446862e77e443bb9235cab5
+PUT http://localhost:8080/beers/64872cdbe3fc105cceba0851
 Content-Type: application/json
 
 {

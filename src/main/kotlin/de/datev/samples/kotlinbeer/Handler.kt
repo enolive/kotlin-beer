@@ -1,12 +1,13 @@
 package de.datev.samples.kotlinbeer
 
-import kotlinx.coroutines.flow.Flow
+import arrow.core.Either
+import arrow.core.continuations.either
+import arrow.core.rightIfNotNull
 import org.bson.types.ObjectId
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.server.*
-import org.springframework.web.server.ResponseStatusException
-import java.net.URI
+import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.awaitBody
 
 @Component
 class Handler(
@@ -18,11 +19,11 @@ class Handler(
     return beers.responseOk()
   }
 
-  suspend fun getBeer(request: ServerRequest): ServerResponse {
-    val id = request.objectId()
-    val beer = beerRepository.findById(id) ?: throw ResponseStatusException(HttpStatus.NO_CONTENT)
-    return beer.responseOk()
-  }
+  suspend fun getBeer(request: ServerRequest): ServerResponse = either {
+    val id = request.objectId().bind()
+    val beer = beerRepository.tryFindById(id).bind()
+    beer
+  }.foldServerResponse { it.responseOk() }
 
   suspend fun createBeer(request: ServerRequest, rootUrl: String): ServerResponse {
     val partialBeer = request.awaitBody<PartialBeer>()
@@ -30,32 +31,21 @@ class Handler(
     return createdBeer.responseCreated(rootUrl)
   }
 
-  suspend fun deleteBeer(request: ServerRequest): ServerResponse {
-    val id = request.objectId()
+  suspend fun deleteBeer(request: ServerRequest): ServerResponse = either {
+    val id = request.objectId().bind()
     beerRepository.deleteById(id)
-    return noContent()
-  }
+  }.foldServerResponse { responseNoContent() }
 
-  suspend fun updateBeer(request: ServerRequest): ServerResponse {
-    val id = request.objectId()
+  suspend fun updateBeer(request: ServerRequest): ServerResponse = either {
+    val id = request.objectId().bind()
     val partialBeer = request.awaitBody<PartialBeer>()
-    beerRepository.findById(id) ?: throw ResponseStatusException(HttpStatus.NO_CONTENT)
+    beerRepository.tryFindById(id).bind()
     val updatedBeer = partialBeer.complete().copy(id = id).let { beerRepository.save(it) }
-    return updatedBeer.responseOk()
-  }
+    updatedBeer
+  }.foldServerResponse { it.responseOk() }
 
-  private suspend fun Any.responseOk() =
-    ServerResponse.ok().bodyValueAndAwait(this)
-
-  private suspend inline fun <reified T : Any> Flow<T>.responseOk() =
-    ServerResponse.ok().bodyAndAwait(this)
-
-  private suspend fun HasId.responseCreated(rootUrl: String) =
-    ServerResponse.created(URI("$rootUrl/$id")).bodyValueAndAwait(this)
-
-  private suspend fun noContent() = ServerResponse.noContent().buildAndAwait()
-
-  private fun ServerRequest.objectId() = ObjectId(pathVariable("id"))
+  private suspend fun BeerRepository.tryFindById(id: ObjectId): Either<ResourceNotFound, Beer> =
+    findById(id).rightIfNotNull { ResourceNotFound }
 
   private fun PartialBeer.complete() =
     Beer(brand = brand, name = name, strength = strength)
