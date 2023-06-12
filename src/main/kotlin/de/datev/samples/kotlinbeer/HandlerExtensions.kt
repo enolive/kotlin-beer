@@ -13,9 +13,12 @@ val handlerExtLogger = KotlinLogging.logger { }
 suspend fun <T> Either<RequestError, T>.foldServerResponse(func: suspend (T) -> ServerResponse): ServerResponse =
   fold({ it.responseError() }, { func(it) })
 
-private suspend fun RequestError.responseError(): ServerResponse = when (this) {
-  ResourceNotFound -> responseNoContent()
-  InvalidObjectId, InvalidBody -> ServerResponse.badRequest().bodyValueAndAwait(message)
+private suspend fun RequestError.responseError(): ServerResponse {
+  handlerExtLogger.warn { this }
+  return when (this) {
+    ResourceNotFound -> responseNoContent()
+    InvalidObjectId, InvalidBody -> ServerResponse.badRequest().bodyValueAndAwait(message)
+  }
 }
 
 suspend fun Any.responseOk() = ServerResponse.ok().bodyValueAndAwait(this)
@@ -31,7 +34,9 @@ suspend inline fun <reified T : Any> ServerRequest.bodyJson(): Either<InvalidBod
     .tapLeft { handlerExtLogger.error(it) { "failed to deserialize body" } }
     .mapLeft { InvalidBody }
 
+sealed class RequestError(val message: String) {
+  override fun toString() = message
+}
 object InvalidBody : RequestError("the given body is invalid")
 object InvalidObjectId : RequestError("the given id is invalid")
-sealed class RequestError(val message: String)
 object ResourceNotFound : RequestError("the requested resource was not found")

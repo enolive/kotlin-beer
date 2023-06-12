@@ -26,9 +26,9 @@ class BeerHandler(
   }.foldServerResponse { it.responseOk() }
 
   suspend fun createBeer(request: ServerRequest, rootUrl: String): ServerResponse = either {
-    val partialBeer = request.bodyJson<PartialBeer>().bind()
-    val createdBeer = partialBeer.complete().let { beerRepository.save(it) }
-    createdBeer
+    val toCreate = request.bodyJson<PartialBeer>().bind()
+    val created = toCreate.complete().let { beerRepository.save(it) }
+    created
   }.foldServerResponse { it.responseCreated(rootUrl) }
 
   suspend fun deleteBeer(request: ServerRequest): ServerResponse = either {
@@ -38,15 +38,15 @@ class BeerHandler(
 
   suspend fun updateBeer(request: ServerRequest): ServerResponse = either {
     val id = request.objectId().bind()
-    val partialBeer = request.bodyJson<PartialBeer>().bind()
     beerRepository.tryFindById(id).bind()
-    val updatedBeer = partialBeer.complete().copy(id = id).let { beerRepository.save(it) }
-    updatedBeer
+    val toUpdate = request.bodyJson<PartialBeer>().bind()
+    val updated = toUpdate.complete(id).let { beerRepository.save(it) }
+    updated
   }.foldServerResponse { it.responseOk() }
 
   private suspend fun BeerRepository.tryFindById(id: ObjectId): Either<ResourceNotFound, Beer> =
     findById(id).rightIfNotNull { ResourceNotFound }
 
-  private fun PartialBeer.complete() =
-    Beer(brand = brand, name = name, strength = strength)
+  private fun PartialBeer.complete(id: ObjectId? = null) =
+    Beer(id = id, brand = brand, name = name, strength = strength)
 }
