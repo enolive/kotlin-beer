@@ -5,6 +5,8 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.mockk.coEvery
+import io.mockk.coJustRun
+import io.mockk.coVerify
 import io.mockk.every
 import kotlinx.coroutines.flow.asFlow
 import org.bson.types.ObjectId
@@ -84,6 +86,16 @@ class ApiTest(
       response.shouldHaveJsonBody(expected)
       response.expectHeader().location("/beers/${created.id}")
     }
+  }
+
+  it("has DELETE /{id}") {
+    val id = ObjectId.get()
+    coJustRun { beerRepository.deleteById(any()) }
+
+    val response = webTestClient.delete().uri("/beers/$id").exchange()
+
+    response.expectStatus().isNoContent
+    coVerify { beerRepository.deleteById(id) }
   }
 })
 

@@ -23,6 +23,11 @@ class Controller(
   suspend fun getBeer(@PathVariable id: ObjectId) =
     beerRepository.findById(id) ?: throw ResponseStatusException(HttpStatus.NO_CONTENT)
 
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @DeleteMapping("{id}")
+  suspend fun deleteBeer(@PathVariable id: ObjectId) =
+    beerRepository.deleteById(id)
+
   private fun HasId.wrapInCreatedResponse() =
     ResponseEntity.created(URI("/beers/$id")).body(this)
 
