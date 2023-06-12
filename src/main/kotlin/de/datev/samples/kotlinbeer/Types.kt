@@ -7,11 +7,21 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.math.BigDecimal
 
+interface HasId {
+  val id: ObjectId?
+}
+
 @Document(collection = "Beer")
 data class Beer(
   @Id
   @JsonSerialize(using = ToStringSerializer::class)
-  val id: ObjectId? = null,
+  override val id: ObjectId? = null,
+  val brand: String,
+  val name: String,
+  val strength: BigDecimal,
+) : HasId
+
+data class PartialBeer(
   val brand: String,
   val name: String,
   val strength: BigDecimal,
