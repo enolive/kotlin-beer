@@ -86,6 +86,33 @@ class ApiTest(
       response.shouldHaveJsonBody(expected)
       response.expectHeader().location("/beers/${created.id}")
     }
+
+    it("has PUT /{id}") {
+      val id = ObjectId.get()
+      val existing = Beer(id = id, brand = "Nestle", name = "Wasser", strength = 5.toBigDecimal())
+      val toUpdate = Beer(id = id, brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal())
+      val updated = toUpdate.copy(id = id)
+      val expected = updated.toJson()
+      @Language("JSON") val toJson = """
+        {
+          "brand": "Nestle",
+          "name": "Wasser",
+          "strength": 0
+        }
+      """.trimIndent()
+      coEvery { beerRepository.findById(id) } returns existing
+      coEvery { beerRepository.save(toUpdate) } returns updated
+
+      val response = webTestClient
+        .put()
+        .uri("/beers/$id")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(toJson)
+        .exchange()
+
+      response.expectStatus().isOk
+      response.shouldHaveJsonBody(expected)
+    }
   }
 
   it("has DELETE /{id}") {

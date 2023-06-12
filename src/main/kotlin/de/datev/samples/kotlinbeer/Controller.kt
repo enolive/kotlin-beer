@@ -28,6 +28,12 @@ class Controller(
   suspend fun deleteBeer(@PathVariable id: ObjectId) =
     beerRepository.deleteById(id)
 
+  @PutMapping("{id}")
+  suspend fun updateBeer(@PathVariable id: ObjectId, @RequestBody toUpdate: PartialBeer): Beer {
+    val found = beerRepository.findById(id)
+    return toUpdate.complete().copy(id = id).let { beerRepository.save(it) }
+  }
+
   private fun HasId.wrapInCreatedResponse() =
     ResponseEntity.created(URI("/beers/$id")).body(this)
 
