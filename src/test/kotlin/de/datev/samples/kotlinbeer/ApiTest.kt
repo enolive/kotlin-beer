@@ -4,24 +4,28 @@ import com.ninjasquad.springmockk.MockkBean
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
-import io.mockk.coEvery
-import io.mockk.coJustRun
-import io.mockk.coVerify
-import io.mockk.every
+import io.mockk.*
 import kotlinx.coroutines.flow.asFlow
 import org.bson.types.ObjectId
 import org.intellij.lang.annotations.Language
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
 @WebFluxTest
+@Import(Router::class, Handler::class)
 class ApiTest(
   private val webTestClient: WebTestClient,
   @MockkBean
   private val beerRepository: BeerRepository,
 ) : DescribeSpec({
+
+  beforeAny {
+    clearAllMocks()
+  }
+
   describe("API for /beers") {
     it("has GET /") {
       val existingBeers = listOf(
