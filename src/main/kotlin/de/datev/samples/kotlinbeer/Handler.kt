@@ -32,6 +32,36 @@ class Handler(
     return toUpdate.complete().copy(id = id).let { beerRepository.save(it) }
   }
 
+  suspend fun deleteBeer(request: ServerRequest): ServerResponse {
+    val id = ObjectId(request.pathVariable("id"))
+    deleteBeer(id)
+    return ServerResponse.noContent().buildAndAwait()
+  }
+
+  suspend fun updateBeer(request: ServerRequest): ServerResponse {
+    val id = ObjectId(request.pathVariable("id"))
+    val partialBeer = request.awaitBody<PartialBeer>()
+    val updatedBeer = updateBeer(id, partialBeer)
+    return ServerResponse.ok().bodyValueAndAwait(updatedBeer)
+  }
+
+  suspend fun createBeer(request: ServerRequest): ServerResponse {
+    val partialBeer = request.awaitBody<PartialBeer>()
+    val createdBeer = createBeer(partialBeer)
+    return ServerResponse.created(URI("/beers/${createdBeer.id}")).bodyValueAndAwait(createdBeer)
+  }
+
+  suspend fun getBeer(request: ServerRequest): ServerResponse {
+    val id = ObjectId(request.pathVariable("id"))
+    val beer = getBeer(id)
+    return ServerResponse.ok().bodyValueAndAwait(beer)
+  }
+
+  suspend fun getAllBeers(request: ServerRequest): ServerResponse {
+    val beers = getAllBeers()
+    return ServerResponse.ok().bodyAndAwait(beers)
+  }
+
   private fun HasId.wrapInCreatedResponse() =
     ResponseEntity.created(URI("/beers/$id")).body(this)
 
@@ -44,32 +74,11 @@ class Router(private val handler: Handler) {
   @Bean
   fun routsConfig() = coRouter {
     "/beers".nest {
-      GET("") {
-        val beers = handler.getAllBeers()
-        ServerResponse.ok().bodyAndAwait(beers)
-      }
-      GET("{id}") {
-        val id = ObjectId(it.pathVariable("id"))
-        val beer = handler.getBeer(id)
-        ServerResponse.ok().bodyValueAndAwait(beer)
-      }
-      POST("") {
-        val partialBeer = it.awaitBody<PartialBeer>()
-        val createdBeer = handler.createBeer(partialBeer)
-        ServerResponse.created(URI("/beers/${createdBeer.id}")).bodyValueAndAwait(createdBeer)
-      }
-      PUT("{id}") {
-        val id = ObjectId(it.pathVariable("id"))
-        val partialBeer = it.awaitBody<PartialBeer>()
-        val updatedBeer = handler.updateBeer(id, partialBeer)
-        ServerResponse.ok().bodyValueAndAwait(updatedBeer)
-      }
-      DELETE("{id}") {
-        val id = ObjectId(it.pathVariable("id"))
-        handler.deleteBeer(id)
-        ServerResponse.noContent().buildAndAwait()
-      }
+      GET("") { handler.getAllBeers(it) }
+      GET("{id}") { handler.getBeer(it) }
+      POST("") { handler.createBeer(it) }
+      PUT("{id}") { handler.updateBeer(it) }
+      DELETE("{id}") { handler.deleteBeer(it) }
     }
   }
 }
-
