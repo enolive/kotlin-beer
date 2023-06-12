@@ -1,4 +1,4 @@
-package de.datev.samples.kotlinbeer
+package de.datev.samples.kotlinbeer.beers
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer

@@ -1,4 +1,4 @@
-package de.datev.samples.kotlinbeer
+package de.datev.samples.kotlinbeer.beers
 
 import org.bson.types.ObjectId
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository

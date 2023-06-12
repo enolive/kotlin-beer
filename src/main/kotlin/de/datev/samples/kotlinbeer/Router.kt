@@ -1,19 +1,20 @@
 package de.datev.samples.kotlinbeer
 
+import de.datev.samples.kotlinbeer.beers.BeerHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.server.coRouter
 
 @Configuration
-class Router(private val handler: Handler) {
+class Router(private val beerHandler: BeerHandler) {
   @Bean
-  fun routsConfig() = coRouter {
+  fun routesConfig() = coRouter {
     "/beers".nest {
-      GET("") { handler.getAllBeers(it) }
-      GET("{id}") { handler.getBeer(it) }
-      POST("") { handler.createBeer(it, "/beers") }
-      PUT("{id}") { handler.updateBeer(it) }
-      DELETE("{id}") { handler.deleteBeer(it) }
+      GET("") { beerHandler.getAllBeers(it) }
+      GET("{id}") { beerHandler.getBeer(it) }
+      POST("") { beerHandler.createBeer(it, "/beers") }
+      PUT("{id}") { beerHandler.updateBeer(it) }
+      DELETE("{id}") { beerHandler.deleteBeer(it) }
     }
   }
 }

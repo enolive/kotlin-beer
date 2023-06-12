@@ -1,10 +1,14 @@
 package de.datev.samples.kotlinbeer
 
 import arrow.core.Either
+import de.datev.samples.kotlinbeer.beers.HasId
 import kotlinx.coroutines.flow.Flow
+import mu.KotlinLogging
 import org.bson.types.ObjectId
 import org.springframework.web.reactive.function.server.*
 import java.net.URI
+
+val handlerExtLogger = KotlinLogging.logger { }
 
 suspend fun <T> Either<RequestError, T>.foldServerResponse(func: suspend (T) -> ServerResponse): ServerResponse =
   fold({ it.responseError() }, { func(it) })
@@ -22,7 +26,10 @@ suspend fun HasId.responseCreated(rootUrl: String) =
 suspend fun responseNoContent() = ServerResponse.noContent().buildAndAwait()
 fun ServerRequest.objectId() = Either.catch { ObjectId(pathVariable("id")) }.mapLeft { InvalidObjectId }
 suspend inline fun <reified T : Any> ServerRequest.bodyJson(): Either<InvalidBody, T> =
-  Either.catch { awaitBody<T>() }.mapLeft { InvalidBody }
+  Either
+    .catch { awaitBody<T>() }
+    .tapLeft { handlerExtLogger.error(it) { "failed to deserialize body" } }
+    .mapLeft { InvalidBody }
 
 object InvalidBody : RequestError("the given body is invalid")
 object InvalidObjectId : RequestError("the given id is invalid")

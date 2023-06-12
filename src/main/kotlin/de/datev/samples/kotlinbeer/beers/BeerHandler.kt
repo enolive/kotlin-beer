@@ -1,15 +1,16 @@
-package de.datev.samples.kotlinbeer
+package de.datev.samples.kotlinbeer.beers
 
 import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.rightIfNotNull
+import de.datev.samples.kotlinbeer.*
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 
 @Component
-class Handler(
+class BeerHandler(
   private val beerRepository: BeerRepository,
 ) {
 

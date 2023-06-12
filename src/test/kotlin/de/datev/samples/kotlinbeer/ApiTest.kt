@@ -1,6 +1,9 @@
 package de.datev.samples.kotlinbeer
 
 import com.ninjasquad.springmockk.MockkBean
+import de.datev.samples.kotlinbeer.beers.Beer
+import de.datev.samples.kotlinbeer.beers.BeerHandler
+import de.datev.samples.kotlinbeer.beers.BeerRepository
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -15,7 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
 @WebFluxTest
-@Import(Router::class, Handler::class)
+@Import(Router::class, BeerHandler::class)
 class ApiTest(
   private val webTestClient: WebTestClient,
   @MockkBean
@@ -121,7 +124,6 @@ class ApiTest(
 
       it("returns NO CONTENT when beer does not exist") {
         val id = ObjectId.get()
-        val existing = null
         @Language("JSON") val toJson = """
         {
           "brand": "Nestle",
