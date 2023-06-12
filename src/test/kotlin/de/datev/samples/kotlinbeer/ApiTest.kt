@@ -1,26 +1,30 @@
 package de.datev.samples.kotlinbeer
 
+import com.ninjasquad.springmockk.MockkBean
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.mockk.every
+import kotlinx.coroutines.flow.asFlow
 import org.intellij.lang.annotations.Language
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
 @WebFluxTest
-class ApiTest(private val webTestClient: WebTestClient) : DescribeSpec({
+class ApiTest(
+  private val webTestClient: WebTestClient,
+  @MockkBean
+  private val beerRepository: BeerRepository,
+) : DescribeSpec({
   describe("API for /beers") {
     describe("has GET /") {
-      val expected = """
-                      [
-                        {
-                          "brand": "Nestle",
-                          "name": "Wasser",
-                          "strength": 0
-                        }
-                      ]
-                    """.trimIndent()
+      val existingBeers = listOf(
+        Beer("Nestle", "Wasser", 0.toBigDecimal()),
+        Beer("Nestle", "Nesquik", 0.toBigDecimal()),
+      )
+      every { beerRepository.findAll() } returns existingBeers.asFlow()
+      val expected = existingBeers.joinToString(prefix = "[", postfix = "]", separator = ",") { it.toJson() }
 
       val response = webTestClient.get().uri("/beers").exchange()
 
@@ -30,7 +34,19 @@ class ApiTest(private val webTestClient: WebTestClient) : DescribeSpec({
   }
 })
 
-private fun WebTestClient.ResponseSpec.shouldHaveJsonBody(@Language("JSON") expected: String) {
+@Language("JSON")
+private fun Beer.toJson() = """
+ {
+   "brand": "$brand",
+   "name": "$name",
+   "strength": $strength
+ }
+""".trimIndent()
+
+private fun WebTestClient.ResponseSpec.shouldHaveJsonBody(
+  @Language("JSON")
+  expected: String
+) {
   expectBody<String>().consumeWith {
     it.responseBody
       .shouldNotBeNull()
