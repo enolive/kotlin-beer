@@ -5,7 +5,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.math.BigDecimal
 
-@Document
+@Document(collection = "Beer")
 data class Beer(
   @Id
   val id: ObjectId? = null,
