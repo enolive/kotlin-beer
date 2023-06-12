@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.mockk.every
 import kotlinx.coroutines.flow.asFlow
+import org.bson.types.ObjectId
 import org.intellij.lang.annotations.Language
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -20,8 +21,8 @@ class ApiTest(
   describe("API for /beers") {
     describe("has GET /") {
       val existingBeers = listOf(
-        Beer(brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal()),
-        Beer(brand = "Nestle", name = "Nesquik", strength = 0.toBigDecimal()),
+        Beer(id = ObjectId.get(), brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal()),
+        Beer(id = ObjectId.get(), brand = "Nestle", name = "Nesquik", strength = 0.toBigDecimal()),
       )
       every { beerRepository.findAll() } returns existingBeers.asFlow()
       val expected = existingBeers.joinToString(prefix = "[", postfix = "]", separator = ",") { it.toJson() }
@@ -37,6 +38,7 @@ class ApiTest(
 @Language("JSON")
 private fun Beer.toJson() = """
  {
+   "id": "$id",
    "brand": "$brand",
    "name": "$name",
    "strength": $strength
