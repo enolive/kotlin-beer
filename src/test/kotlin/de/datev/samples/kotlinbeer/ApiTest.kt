@@ -20,8 +20,8 @@ class ApiTest(
   describe("API for /beers") {
     describe("has GET /") {
       val existingBeers = listOf(
-        Beer("Nestle", "Wasser", 0.toBigDecimal()),
-        Beer("Nestle", "Nesquik", 0.toBigDecimal()),
+        Beer(brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal()),
+        Beer(brand = "Nestle", name = "Nesquik", strength = 0.toBigDecimal()),
       )
       every { beerRepository.findAll() } returns existingBeers.asFlow()
       val expected = existingBeers.joinToString(prefix = "[", postfix = "]", separator = ",") { it.toJson() }
