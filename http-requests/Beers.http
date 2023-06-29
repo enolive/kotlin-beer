@@ -23,7 +23,7 @@ DELETE http://localhost:8080/beers/64872cdbe3fc105cceba0851
 
 ### update a beer
 
-PUT http://localhost:8080/beers/64872cdbe3fc105cceba0851
+PUT http://localhost:8080/beers/648789f1a6a3f82cfea5e812
 Content-Type: application/json
 
 {
