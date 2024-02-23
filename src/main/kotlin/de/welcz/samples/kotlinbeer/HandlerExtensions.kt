@@ -1,7 +1,7 @@
-package de.datev.samples.kotlinbeer
+package de.welcz.samples.kotlinbeer
 
 import arrow.core.Either
-import de.datev.samples.kotlinbeer.beers.HasId
+import de.welcz.samples.kotlinbeer.beers.HasId
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
 import org.bson.types.ObjectId
@@ -31,7 +31,7 @@ fun ServerRequest.objectId() = Either.catch { ObjectId(pathVariable("id")) }.map
 suspend inline fun <reified T : Any> ServerRequest.bodyJson(): Either<InvalidBody, T> =
   Either
     .catch { awaitBody<T>() }
-    .tapLeft { handlerExtLogger.error(it) { "failed to deserialize body" } }
+    .onLeft { handlerExtLogger.error(it) { "failed to deserialize body" } }
     .mapLeft { InvalidBody }
 
 sealed class RequestError(val message: String) {

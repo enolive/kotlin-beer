@@ -1,8 +1,8 @@
-package de.datev.samples.kotlinbeer.config
+package de.welcz.samples.kotlinbeer.config
 
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
-import de.datev.samples.kotlinbeer.beers.Beer
-import de.datev.samples.kotlinbeer.beers.PartialBeer
+import de.welcz.samples.kotlinbeer.beers.Beer
+import de.welcz.samples.kotlinbeer.beers.PartialBeer
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding
 import org.springframework.context.annotation.Configuration
 

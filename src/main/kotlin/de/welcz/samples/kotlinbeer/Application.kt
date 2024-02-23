@@ -1,4 +1,4 @@
-package de.datev.samples.kotlinbeer
+package de.welcz.samples.kotlinbeer
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

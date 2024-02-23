@@ -1,9 +1,9 @@
-package de.datev.samples.kotlinbeer
+package de.welcz.samples.kotlinbeer
 
 import com.ninjasquad.springmockk.MockkBean
-import de.datev.samples.kotlinbeer.beers.Beer
-import de.datev.samples.kotlinbeer.beers.BeerHandler
-import de.datev.samples.kotlinbeer.beers.BeerRepository
+import de.welcz.samples.kotlinbeer.beers.Beer
+import de.welcz.samples.kotlinbeer.beers.BeerHandler
+import de.welcz.samples.kotlinbeer.beers.BeerRepository
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull

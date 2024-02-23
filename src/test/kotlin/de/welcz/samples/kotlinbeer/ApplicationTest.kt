@@ -1,4 +1,4 @@
-package de.datev.samples.kotlinbeer
+package de.welcz.samples.kotlinbeer
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull

@@ -1,4 +1,4 @@
-package de.datev.samples.kotlinbeer.config
+package de.welcz.samples.kotlinbeer.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.config.CorsRegistry
