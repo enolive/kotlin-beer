@@ -1,8 +1,9 @@
 package de.welcz.samples.kotlinbeer.beers
 
 import arrow.core.Either
-import arrow.core.continuations.either
-import arrow.core.rightIfNotNull
+import arrow.core.left
+import arrow.core.raise.either
+import arrow.core.right
 import de.welcz.samples.kotlinbeer.*
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Component
@@ -45,7 +46,9 @@ class BeerHandler(
   }.foldServerResponse { it.responseOk() }
 
   private suspend fun BeerRepository.tryFindById(id: ObjectId): Either<ResourceNotFound, Beer> =
-    findById(id).rightIfNotNull { ResourceNotFound }
+    findById(id)
+      ?.right()
+      ?: ResourceNotFound.left()
 
   private fun PartialBeer.complete(id: ObjectId? = null) =
     Beer(id = id, brand = brand, name = name, strength = strength)
