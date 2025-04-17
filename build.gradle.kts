@@ -1,9 +1,10 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  val kotlinVersion = "1.9.22"
-  id("org.springframework.boot") version "3.2.3"
-  id("io.spring.dependency-management") version "1.1.4"
+  val kotlinVersion = "2.1.20"
+  id("org.springframework.boot") version "3.4.4"
+  id("io.spring.dependency-management") version "1.1.7"
   kotlin("jvm") version kotlinVersion
   kotlin("plugin.spring") version kotlinVersion
 }
@@ -12,7 +13,7 @@ group = "de.welcz.samples"
 version = "0.0.1-SNAPSHOT"
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_17
+  sourceCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -21,7 +22,7 @@ repositories {
 
 dependencies {
   val kotestVersion = "5.8.0"
-  val arrowVersion = "1.2.1"
+  val arrowVersion = "2.0.0"
   val kotestExtensionsSpringVersion = "1.1.3"
 
   implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -47,9 +48,9 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-  kotlinOptions {
-    freeCompilerArgs += "-Xjsr305=strict"
-    jvmTarget = "17"
+  compilerOptions {
+    freeCompilerArgs.addAll("-Xjsr305=strict")
+    jvmTarget = JvmTarget.JVM_21
   }
 }
 

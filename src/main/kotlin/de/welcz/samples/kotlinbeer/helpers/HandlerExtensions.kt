@@ -1,4 +1,4 @@
-package de.welcz.samples.kotlinbeer
+package de.welcz.samples.kotlinbeer.helpers
 
 import arrow.core.Either
 import de.welcz.samples.kotlinbeer.beers.HasId
@@ -10,23 +10,21 @@ import java.net.URI
 
 val handlerExtLogger = KotlinLogging.logger { }
 
-suspend fun <T> Either<RequestError, T>.foldServerResponse(func: suspend (T) -> ServerResponse): ServerResponse =
-  fold({ it.responseError() }, { func(it) })
-
-private suspend fun RequestError.responseError(): ServerResponse {
-  handlerExtLogger.warn { this }
-  return when (this) {
-    ResourceNotFound -> responseNoContent()
-    InvalidObjectId, InvalidBody -> ServerResponse.badRequest().bodyValueAndAwait(this)
-  }
-}
+suspend fun <T> Either<RequestError, T>.toServerResponse(func: suspend (T) -> ServerResponse): ServerResponse =
+  fold({
+    handlerExtLogger.warn { it }
+    when (it) {
+      ResourceNotFound -> responseNoContent()
+      InvalidObjectId, InvalidBody -> ServerResponse.badRequest().bodyValueAndAwait(it)
+    }
+  }, { func(it) })
 
 suspend fun Any.responseOk() = ServerResponse.ok().bodyValueAndAwait(this)
 suspend inline fun <reified T : Any> Flow<T>.responseOk() = ServerResponse.ok().bodyAndAwait(this)
 suspend fun HasId.responseCreated(rootUrl: String) =
   ServerResponse.created(URI("$rootUrl/$id")).bodyValueAndAwait(this)
-
 suspend fun responseNoContent() = ServerResponse.noContent().buildAndAwait()
+
 fun ServerRequest.objectId() = Either
   .catch { ObjectId(pathVariable("id")) }
   .mapLeft { InvalidObjectId }
