@@ -3,6 +3,11 @@ package de.welcz.samples.kotlinbeer.beers
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import de.welcz.samples.kotlinbeer.helpers.*
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -18,6 +23,25 @@ class BeerHandler(
     return beers.responseOk()
   }
 
+  @Operation(
+    summary = "Get specific beer",
+    parameters = [
+      Parameter(
+        name = "id",
+        description = "id of the beer",
+        schema = Schema(implementation = String::class, example = "6615b206cbf537050fef2a4a"),
+        required = true
+      ),
+    ],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "found beer",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = Beer::class))]
+      ),
+      ApiResponse(responseCode = "204", description = "beer does not exist", content = [Content()]),
+    ]
+  )
   suspend fun getBeer(request: ServerRequest): ServerResponse = either {
     val id = request.objectId().bind()
     val beer = beerRepository.tryFindById(id).bind()

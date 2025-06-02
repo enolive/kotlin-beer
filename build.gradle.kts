@@ -13,7 +13,9 @@ group = "de.welcz.samples"
 version = "0.0.1-SNAPSHOT"
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_21
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
 }
 
 repositories {
@@ -21,8 +23,8 @@ repositories {
 }
 
 dependencies {
-  val kotestVersion = "5.8.0"
-  val arrowVersion = "2.0.0"
+  val kotestVersion = "5.9.1"
+  val arrowVersion = "2.1.0"
   val kotestExtensionsSpringVersion = "1.1.3"
 
   implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -34,11 +36,15 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("io.github.microutils:kotlin-logging:3.0.0")
   implementation("io.arrow-kt:arrow-core:$arrowVersion")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.8")
+//  implementation("io.arrow-kt:arrow-resilience:$arrowVersion")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
   developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
   testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
@@ -50,7 +56,6 @@ dependencies {
 tasks.withType<KotlinCompile> {
   compilerOptions {
     freeCompilerArgs.addAll("-Xjsr305=strict")
-    jvmTarget = JvmTarget.JVM_21
   }
 }
 
