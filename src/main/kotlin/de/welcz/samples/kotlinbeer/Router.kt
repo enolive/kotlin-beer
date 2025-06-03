@@ -14,8 +14,8 @@ import org.springframework.web.reactive.function.server.CoRouterFunctionDsl
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.coRouter
-import kotlin.reflect.KCallable
-import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.jvm.javaMethod
 
 @Configuration
 class Router(private val beerHandler: BeerHandler) {
@@ -36,21 +36,25 @@ class Router(private val beerHandler: BeerHandler) {
 
         GET("{id}") { beerHandler.getBeer(it) }
         // uglier variant using methods decorated with @Operation that are really verbosy
-  //      withDocsAt(BeerHandler::class, BeerHandler::getBeer)
-        withDocs {
-          operationId("getBeerById")
-          summary("get beer by id")
-          parameter(beerIdParam())
-          response(responseBuilder().responseCode("200").description("existing beer").implementation(Beer::class.java))
-          response(beerDoesNotExist())
-        }
+//        withDocsAt(BeerHandler::getBeer)
+            withDocs {
+              operationId("getBeerById")
+              summary("get beer by id")
+              parameter(beerIdParam())
+              response(
+                responseBuilder().responseCode("200").description("existing beer").implementation(Beer::class.java)
+              )
+              response(beerDoesNotExist())
+            }
 
         POST("") { beerHandler.createBeer(it, "/beers") }
         withDocs {
           operationId("createBeer")
           summary("create a beer")
           requestBody(requestBodyBuilder().implementation(PartialBeer::class.java))
-          response(responseBuilder().responseCode("201").description("created beer").implementation(Beer::class.java))
+          response(
+            responseBuilder().responseCode("201").description("created beer").implementation(Beer::class.java)
+          )
         }
 
         PUT("{id}") { beerHandler.updateBeer(it) }
@@ -59,7 +63,9 @@ class Router(private val beerHandler: BeerHandler) {
           summary("update an existing beer")
           parameter(beerIdParam())
           requestBody(requestBodyBuilder().implementation(PartialBeer::class.java))
-          response(responseBuilder().responseCode("200").description("updated beer").implementation(Beer::class.java))
+          response(
+            responseBuilder().responseCode("200").description("updated beer").implementation(Beer::class.java)
+          )
           response(beerDoesNotExist())
         }
 
@@ -84,7 +90,8 @@ private fun CoRouterFunctionDsl.withDocs(buildOperation: Builder.() -> Unit) {
   withAttribute(Constants.OPERATION_ATTRIBUTE, opsBuilder)
 }
 
-private fun CoRouterFunctionDsl.withDocsAt(beanClass: KClass<*>, beanMethod: KCallable<*>) {
-  val opsBuilder = Builder.operationBuilder().beanClass(beanClass.java).beanMethod(beanMethod.name)
+private fun CoRouterFunctionDsl.withDocsAt(beanMethod: KFunction<*>) {
+  val beanClass = requireNotNull(beanMethod.javaMethod) { "java method not found for $beanMethod" }.declaringClass
+  val opsBuilder = Builder.operationBuilder().beanClass(beanClass).beanMethod(beanMethod.name)
   withAttribute(Constants.OPERATION_ATTRIBUTE, opsBuilder)
 }
