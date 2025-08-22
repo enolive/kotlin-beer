@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -23,9 +22,11 @@ repositories {
 }
 
 dependencies {
-  val kotestVersion = "5.9.1"
+  testImplementation("org.testcontainers:junit-jupiter")
+  testImplementation("org.springframework.boot:spring-boot-testcontainers")
+  testImplementation("org.testcontainers:mongodb")
+  val kotestVersion = "6.0.0"
   val arrowVersion = "2.1.0"
-  val kotestExtensionsSpringVersion = "1.1.3"
 
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
@@ -48,9 +49,11 @@ dependencies {
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
   testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+  testImplementation("io.kotest:kotest-property:$kotestVersion")
   testImplementation("io.kotest:kotest-assertions-json:$kotestVersion")
-  testImplementation("io.kotest.extensions:kotest-extensions-spring:$kotestExtensionsSpringVersion")
+  testImplementation("io.kotest:kotest-extensions-spring:$kotestVersion")
   testImplementation("com.ninja-squad:springmockk:4.0.2")
+  testImplementation("org.testcontainers:mongodb:1.21.3")
 }
 
 tasks.withType<KotlinCompile> {

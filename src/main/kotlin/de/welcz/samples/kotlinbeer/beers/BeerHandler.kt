@@ -18,7 +18,7 @@ class BeerHandler(
   private val beerRepository: BeerRepository,
 ) {
 
-  suspend fun getAllBeers(request: ServerRequest): ServerResponse {
+  suspend fun getAllBeers(@Suppress("unused") request: ServerRequest): ServerResponse {
     val beers = beerRepository.findAll()
     return beers.responseOk()
   }

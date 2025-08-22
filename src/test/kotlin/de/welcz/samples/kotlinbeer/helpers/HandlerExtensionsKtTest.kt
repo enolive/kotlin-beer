@@ -1,13 +1,13 @@
 package de.welcz.samples.kotlinbeer.helpers
 
 import arrow.core.raise.either
-import io.kotest.assertions.fail
 import io.kotest.core.spec.style.DescribeSpec
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.server.coRouter
+import kotlin.test.fail
 
 @WebFluxTest
 @Import(ErrorHandlingRouter::class)

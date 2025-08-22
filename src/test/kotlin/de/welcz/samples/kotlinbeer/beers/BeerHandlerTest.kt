@@ -2,8 +2,13 @@ package de.welcz.samples.kotlinbeer.beers
 
 import com.ninjasquad.springmockk.MockkBean
 import de.welcz.samples.kotlinbeer.Router
+import de.welcz.samples.kotlinbeer.helpers.beer
+import de.welcz.samples.kotlinbeer.helpers.objectId
 import de.welcz.samples.kotlinbeer.helpers.shouldHaveJsonBody
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.single
+import io.kotest.property.arbitrary.take
 import io.mockk.*
 import kotlinx.coroutines.flow.asFlow
 import org.bson.types.ObjectId
@@ -27,10 +32,7 @@ class BeerHandlerTest(
 
   describe("API for /beers") {
     it("has GET /") {
-      val existingBeers = listOf(
-        Beer(id = ObjectId.get(), brand = "Nestle", name = "Wasser", strength = 0.toBigDecimal()),
-        Beer(id = ObjectId.get(), brand = "Nestle", name = "Nesquik", strength = 0.toBigDecimal()),
-      )
+      val existingBeers = Arb.beer().take(5).toList()
       every { beerRepository.findAll() } returns existingBeers.asFlow()
       val expected = existingBeers.joinToString(prefix = "[", postfix = "]", separator = ",") { it.toJson() }
 
@@ -119,7 +121,7 @@ class BeerHandlerTest(
       }
 
       it("returns NO CONTENT when beer does not exist") {
-        val id = ObjectId.get()
+        val id = Arb.objectId().single()
         @Language("JSON") val toJson = """
         {
           "brand": "Nestle",
@@ -142,7 +144,7 @@ class BeerHandlerTest(
     }
 
     it("has DELETE /{id}") {
-      val id = ObjectId.get()
+      val id = Arb.objectId().single()
       coJustRun { beerRepository.deleteById(any()) }
 
       val response = webTestClient.delete().uri("/beers/$id").exchange()
@@ -157,8 +159,13 @@ class BeerHandlerTest(
 private fun Beer.toJson() = """
  {
    "id": "$id",
-   "brand": "$brand",
-   "name": "$name",
+   "brand": "${brand.escapeJson()}",
+   "name": "${name.escapeJson()}",
    "strength": $strength
  }
 """.trimIndent()
+
+// simple escaping that is good enough for arbitrarily generated names and brands in beers
+private fun String.escapeJson() = this
+  .replace("\\", "\\\\")
+  .replace("\"", "\\\"")
