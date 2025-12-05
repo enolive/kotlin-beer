@@ -2,7 +2,7 @@ package de.welcz.samples.kotlinbeer.helpers
 
 import arrow.core.raise.either
 import io.kotest.core.spec.style.DescribeSpec
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.test.web.reactive.server.WebTestClient

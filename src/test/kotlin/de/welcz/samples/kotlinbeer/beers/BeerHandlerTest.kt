@@ -13,7 +13,7 @@ import io.mockk.*
 import kotlinx.coroutines.flow.asFlow
 import org.bson.types.ObjectId
 import org.intellij.lang.annotations.Language
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient

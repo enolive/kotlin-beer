@@ -1,11 +1,11 @@
 package de.welcz.samples.kotlinbeer.beers
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
+import tools.jackson.databind.ser.std.ToStringSerializer
 import io.swagger.v3.oas.annotations.media.Schema
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import tools.jackson.databind.annotation.JsonSerialize
 import java.math.BigDecimal
 
 interface HasId {
