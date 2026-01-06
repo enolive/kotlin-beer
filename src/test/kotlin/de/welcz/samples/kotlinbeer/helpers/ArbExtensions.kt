@@ -4,13 +4,14 @@ import de.welcz.samples.kotlinbeer.beers.Beer
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.*
 import org.bson.types.ObjectId
+import java.math.RoundingMode
 import java.util.*
 
 fun Arb.Companion.beer() = arbitrary {
   val id = Arb.objectId().bind()
   val brand = Arb.string().bind()
   val name = Arb.string().bind()
-  val strength = Arb.bigDecimal().bind()
+  val strength = Arb.bigDecimal(scale = 5, roundingMode = RoundingMode.HALF_EVEN).bind()
   Beer(id = id, name = name, brand = brand, strength = strength)
 }
 
